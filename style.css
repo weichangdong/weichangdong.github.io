@@ -1,0 +1,387 @@
+:root {
+  --bg: #f7f8fe;
+  /* 正文用深靛蓝，跟随主色系，比近黑更有色调但不牺牲长文可读性 */
+  --fg: #1b2440;
+  /* 次要文字也带一点靛蓝，避免和正文脱节成「灰拼蓝」 */
+  --muted: #5f6480;
+  --line: #e4e5f2;
+  --card: #ffffff;
+  /* 三色主调：蓝 → 紫 → 品红，饱和度都调高了一档 */
+  --accent: #1d6dff;
+  --accent-2: #9333ea;
+  --accent-3: #ec4899;
+  --star: #ffb400;
+  --star-empty: #dcdce6;
+  --radius: 16px;
+  /* 页面顶部的三团柔光：蓝、紫、粉，让底色活起来 */
+  --glow-1: rgba(29, 109, 255, 0.22);
+  --glow-2: rgba(147, 51, 234, 0.20);
+  --glow-3: rgba(236, 72, 153, 0.16);
+  /* 卡片投影：贴近的彩色细影 + 大范围柔和扩散，比纯灰更有「肉感」 */
+  --shadow: 0 1px 2px rgba(29, 109, 255, 0.10),
+            0 14px 36px -16px rgba(96, 60, 220, 0.42);
+  /* 头像外圈的光环 */
+  --halo: 0 0 0 6px rgba(29, 109, 255, 0.16);
+  /* 卡片外框：一圈淡彩描边，让白卡不再「贴」在背景上 */
+  --card-ring: color-mix(in srgb, var(--accent) 20%, var(--line));
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0c14;
+    /* 暗色下用带靛蓝的浅色正文，与浅色模式的色调对称 */
+    --fg: #e7eaf6;
+    --muted: #9ba1bd;
+    --line: #2a2c3d;
+    --card: #151726;
+    --accent: #5b9cff;
+    --accent-2: #c084fc;
+    --accent-3: #fb7bb8;
+    --star: #ffc233;
+    --star-empty: #383a4d;
+    --glow-1: rgba(91, 156, 255, 0.26);
+    --glow-2: rgba(192, 132, 252, 0.24);
+    --glow-3: rgba(251, 123, 184, 0.20);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.5),
+              0 16px 40px -18px rgba(120, 80, 255, 0.65);
+    --halo: 0 0 0 6px rgba(91, 156, 255, 0.20);
+    --card-ring: color-mix(in srgb, var(--accent) 26%, var(--line));
+  }
+}
+
+* { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  /* 页面内滚动到底时不要把滚动「传递」给外层，移动端手感更稳 */
+  overscroll-behavior-y: none;
+  /* 底色 + 顶部两团柔光，给大面积纯色一点空气感。
+     放在 html 而非 body：body 背景会盖住自己的伪元素，层级难控；
+     html 背景永远最底层，且不受任何定位 / z-index 影响。 */
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(58vw 40vh at 18% 0%, var(--glow-1), transparent 68%),
+    radial-gradient(50vw 36vh at 58% 2%, var(--glow-2), transparent 70%),
+    radial-gradient(54vw 38vh at 92% 8%, var(--glow-3), transparent 70%);
+  background-repeat: no-repeat;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.page {
+  max-width: 680px;
+  margin: 0 auto;
+  /* 上下留白随视口宽度流动，320px ~ 900px 之间平滑过渡，无需断点跳变 */
+  padding: clamp(72px, 10vw, 96px) 0 clamp(48px, 7vw, 64px);
+  /* 手机横屏刘海 / 挖孔屏：避免文字被圆角或感应器区域裁掉 */
+  padding-left: max(clamp(20px, 4.5vw, 28px), env(safe-area-inset-left));
+  padding-right: max(clamp(20px, 4.5vw, 28px), env(safe-area-inset-right));
+}
+
+/* ---------- hero ---------- */
+.hero { text-align: center; margin-bottom: clamp(52px, 11vw, 72px); }
+
+.avatar {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 30px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2) 55%, var(--accent-3));
+  /* 外圈光环 + 更饱满的彩色投影，让圆形明显浮起来 */
+  box-shadow: var(--halo), 0 10px 24px -8px rgba(29, 109, 255, 0.65),
+              0 4px 14px -6px rgba(236, 72, 153, 0.5);
+  user-select: none;
+}
+
+h1 {
+  margin: 0 0 8px;
+  font-size: clamp(26px, 5vw, 34px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* 名字用渐变裁切出蓝紫粉过渡，比纯色更有质感 */
+.name {
+  background: linear-gradient(100deg, var(--accent), var(--accent-2) 50%, var(--accent-3));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  /* 渐变文字偶发被裁掉一点字形，加一点内边距兜底 */
+  padding-right: 0.06em;
+}
+
+.tagline {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+/* ---------- sections ---------- */
+.section { margin-bottom: clamp(44px, 9vw, 56px); }
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 20px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* 标题右侧引出一条渐隐彩色细线，把标题与内容分开，也填补右侧空白 */
+.section-title::after {
+  content: "";
+  flex: 1;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--accent) 55%, transparent),
+    color-mix(in srgb, var(--accent-2) 30%, transparent) 45%,
+    transparent);
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  /* 一点外发光，呼应头像的光环 */
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 24%, transparent);
+}
+
+.intro {
+  margin: 0 0 16px;
+  color: var(--fg);
+}
+
+/* 空的介绍段落不留空白（内容还没写时避免多出一块间距） */
+.intro:empty { display: none; }
+
+.intro:last-child { margin-bottom: 0; }
+
+/* ---------- skills ---------- */
+.skills {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--card-ring);
+  border-radius: var(--radius);
+  background: var(--card);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.skill {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  min-height: 52px;
+  border-bottom: 1px solid var(--line);
+  /* 触摸设备：去掉点按高亮和延迟，避免点击时闪灰块 */
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s;
+}
+
+/* 悬停时左侧浮现一条三色竖条（用 inset 定位，不占横向空间） */
+.skill::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 3px;
+  height: 0;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(var(--accent), var(--accent-2) 55%, var(--accent-3));
+  transform: translateY(-50%);
+  transition: height 0.2s ease;
+}
+
+.skill:hover::before { height: 45%; }
+
+.skill:last-child { border-bottom: none; }
+
+.skill:hover { background: color-mix(in srgb, var(--accent) 9%, transparent); }
+
+/* 触摸设备用 :active 反馈替代悬停反馈 */
+@media (hover: none) {
+  .skill:hover { background: transparent; }
+  .skill:hover::before { height: 0; }
+  .skill:active { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+  .skill:active::before { height: 45%; }
+}
+
+.skill-name {
+  font-weight: 500;
+  /* 字号随视口流动：320px 时 15px，471px 起 16px */
+  font-size: clamp(15px, 3.4vw, 16px);
+  /* 允许在窄屏收缩并在长单词处断行，避免撑破卡片 */
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+/* 技能左侧区块（名称 + 可选备注） */
+.skill-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* 备注：名称下方的小字补充说明，允许换行 */
+.skill-note {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  overflow-wrap: break-word;
+}
+
+/* stars: CSS-only, driven by data-level on .skill */
+.stars {
+  flex: none;
+  display: inline-flex;
+  gap: 3px;
+  position: relative;
+  --lvl: 0;
+  /* 与左侧首行文字视觉居中（行高 1.75 vs 星号行高 1） */
+  margin-top: 0.45em;
+}
+
+.stars::before,
+.stars::after {
+  content: "★★★★★";
+  font-size: 15px;
+  line-height: 1;
+  letter-spacing: 3px;
+  white-space: nowrap;
+}
+
+.stars::before { color: var(--star-empty); }
+
+.stars::after {
+  position: absolute;
+  inset: 0;
+  color: var(--star);
+  /* 一点暖色光晕，让已点亮的星星更「闪」 */
+  text-shadow: 0 0 8px color-mix(in srgb, var(--star) 55%, transparent);
+  overflow: hidden;
+  width: calc(var(--lvl) / 5 * 100%);
+}
+
+.skill[data-level="0"]   .stars { --lvl: 0; }
+.skill[data-level="0.5"] .stars { --lvl: 0.5; }
+.skill[data-level="1"]   .stars { --lvl: 1; }
+.skill[data-level="1.5"] .stars { --lvl: 1.5; }
+.skill[data-level="2"]   .stars { --lvl: 2; }
+.skill[data-level="2.5"] .stars { --lvl: 2.5; }
+.skill[data-level="3"]   .stars { --lvl: 3; }
+.skill[data-level="3.5"] .stars { --lvl: 3.5; }
+.skill[data-level="4"]   .stars { --lvl: 4; }
+.skill[data-level="4.5"] .stars { --lvl: 4.5; }
+.skill[data-level="5"]   .stars { --lvl: 5; }
+
+/* ---------- footer ---------- */
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: clamp(64px, 13vw, 80px);
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.footer a {
+  color: var(--muted);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  /* 触摸设备：把链接撑到 44px 触控目标高度（含左右留白） */
+  padding: 8px 6px;
+  margin: -8px -6px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.footer a:hover {
+  color: var(--accent);
+  border-bottom-color: currentColor;
+}
+
+.footer a:active { color: var(--accent); }
+
+/* 微信：微信号用等宽字体便于辨认，且可被点击选中复制 */
+.wx-id {
+  color: var(--fg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.95em;
+  letter-spacing: 0.01em;
+  word-break: break-all;
+}
+
+.sep { color: var(--line); }
+
+/* ---------- 移动端 ---------- */
+/* 上面大部分尺寸已改用 clamp()/vw 流动适配，这里只保留必须按「设备形态」
+   切换的属性：三星号字距、以及把页脚的「·」换成 gap 分隔。 */
+@media (max-width: 560px) {
+  .skills { border-radius: 14px; }
+  .skill { gap: 12px; }
+  .stars::before,
+  .stars::after { letter-spacing: 2.5px; }
+  /* 窄屏换行时「·」容易落在行首变成孤立字符，交给 gap 分隔 */
+  .footer .sep { display: none; }
+  .wx { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+}
+
+/* 超窄屏（≤360px）：再收紧一点，保证技能名 + 五颗星能一行放下 */
+@media (max-width: 360px) {
+  .skill { gap: 8px; padding: 13px 14px; }
+  .stars::before,
+  .stars::after { font-size: 13px; letter-spacing: 2px; }
+  .skill-note { font-size: 12.5px; }
+}
+
+/* ---------- 入场动画 ---------- */
+/* 轻微的淡入上移，让页面「浮现」而不是硬生生出现 */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.hero,
+.section,
+.footer {
+  animation: rise 0.5s ease both;
+}
+
+.hero    { animation-delay: 0.02s; }
+.section:nth-of-type(1) { animation-delay: 0.10s; }
+.section:nth-of-type(2) { animation-delay: 0.18s; }
+.footer  { animation-delay: 0.26s; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
