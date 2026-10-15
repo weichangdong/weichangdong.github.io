@@ -10,7 +10,7 @@
   --accent: #1d6dff;
   --accent-2: #9333ea;
   --accent-3: #ec4899;
-  --star: #ffb400;
+  --star: #f43f5e;
   --star-empty: #dcdce6;
   --radius: 16px;
   /* 页面顶部的三团柔光：蓝、紫、粉，让底色活起来 */
@@ -37,7 +37,7 @@
     --accent: #5b9cff;
     --accent-2: #c084fc;
     --accent-3: #fb7bb8;
-    --star: #ffc233;
+    --star: #fb7185;
     --star-empty: #383a4d;
     --glow-1: rgba(91, 156, 255, 0.26);
     --glow-2: rgba(192, 132, 252, 0.24);
@@ -92,21 +92,29 @@ body {
 .hero { text-align: center; margin-bottom: clamp(52px, 11vw, 72px); }
 
 .avatar {
-  width: 72px;
-  height: 72px;
+  width: 80px;
+  height: 80px;
   margin: 0 auto 24px;
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 30px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
   background: linear-gradient(135deg, var(--accent), var(--accent-2) 55%, var(--accent-3));
-  /* 外圈光环 + 更饱满的彩色投影，让圆形明显浮起来 */
-  box-shadow: var(--halo), 0 10px 24px -8px rgba(29, 109, 255, 0.65),
+  /* 顶部内高光 + 底部内阴影，圆有轻微玻璃立体感 */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
+              inset 0 -8px 16px rgba(0, 0, 0, 0.12),
+              var(--halo), 0 10px 24px -8px rgba(29, 109, 255, 0.65),
               0 4px 14px -6px rgba(236, 72, 153, 0.5);
   user-select: none;
+  transition: transform 0.25s ease;
 }
+
+/* 悬停时轻微放大，增加一点互动感 */
+.avatar:hover { transform: scale(1.06); }
 
 h1 {
   margin: 0 0 8px;
@@ -270,9 +278,9 @@ h1 {
 .stars::before,
 .stars::after {
   content: "★★★★★";
-  font-size: 15px;
+  font-size: 20px;
   line-height: 1;
-  letter-spacing: 3px;
+  letter-spacing: 4px;
   white-space: nowrap;
 }
 
@@ -285,7 +293,8 @@ h1 {
   /* 一点暖色光晕，让已点亮的星星更「闪」 */
   text-shadow: 0 0 8px color-mix(in srgb, var(--star) 55%, transparent);
   overflow: hidden;
-  width: calc(var(--lvl) / 5 * 100%);
+  /* 按每颗星的精确占位（字宽 + 字距）切割，0.5 星就是视觉上的一半 */
+  width: calc(var(--lvl) * (1em + 4px));
 }
 
 .skill[data-level="0"]   .stars { --lvl: 0; }
@@ -343,6 +352,11 @@ h1 {
 
 .sep { color: var(--line); }
 
+/* ---------- selection 高亮：跟随三色主调 ---------- */
+::selection {
+  background: color-mix(in srgb, var(--accent) 26%, transparent);
+}
+
 /* ---------- 移动端 ---------- */
 /* 上面大部分尺寸已改用 clamp()/vw 流动适配，这里只保留必须按「设备形态」
    切换的属性：三星号字距、以及把页脚的「·」换成 gap 分隔。 */
@@ -350,7 +364,8 @@ h1 {
   .skills { border-radius: 14px; }
   .skill { gap: 12px; }
   .stars::before,
-  .stars::after { letter-spacing: 2.5px; }
+  .stars::after { letter-spacing: 3px; }
+  .stars::after { width: calc(var(--lvl) * (1em + 3px)); }
   /* 窄屏换行时「·」容易落在行首变成孤立字符，交给 gap 分隔 */
   .footer .sep { display: none; }
   .wx { display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
@@ -360,7 +375,8 @@ h1 {
 @media (max-width: 360px) {
   .skill { gap: 8px; padding: 13px 14px; }
   .stars::before,
-  .stars::after { font-size: 13px; letter-spacing: 2px; }
+  .stars::after { font-size: 16px; letter-spacing: 2.5px; }
+  .stars::after { width: calc(var(--lvl) * (1em + 2.5px)); }
   .skill-note { font-size: 12.5px; }
 }
 
@@ -375,6 +391,14 @@ h1 {
 .section,
 .footer {
   animation: rise 0.5s ease both;
+}
+
+/* 头像在浮现的同时轻微缩放归位，比整块移动更生动 */
+.hero .avatar { animation: pop 0.6s cubic-bezier(0.22, 1.2, 0.36, 1) both; }
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.7); }
+  to   { opacity: 1; transform: scale(1); }
 }
 
 .hero    { animation-delay: 0.02s; }
